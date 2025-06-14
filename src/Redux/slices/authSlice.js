@@ -3,10 +3,12 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios'
 
 //Retrive the user info and token from the localStorage if available
+const userFromStorage =  localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null;
 
-
-const userFromStorage =  null ;
-//localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) :
+// If userInfo is not available, set user to null
+const tokenFromStorage = localStorage.getItem("userToken")
+  ? localStorage.getItem("userToken")
+  : null;
 
 
 //Check for an existing guestId in the local Storage or generate a new one
@@ -18,6 +20,7 @@ localStorage.setItem("guestId", initialGuestId);
 //Setup inital state
 const initialState = {  
     user: userFromStorage,
+    token: tokenFromStorage,
     guestId : initialGuestId,
     loading : false,
     error: null,
@@ -30,14 +33,15 @@ export const loginUser = createAsyncThunk("auth/loginUser", async (userData, {re
     try {
         
         const response = await axios.post(`https://trip-planner-docker.onrender.com/api/v1/user/login`, userData);
-        console.log({response});
-        localStorage.setItem("userInfo", JSON.stringify(response.data.user))
-        localStorage.setItem('userToken', response.data.token);
+
+        localStorage.setItem("userInfo", JSON.stringify(response.data.data.user))
+        localStorage.setItem('userToken', response.data.data.accessToken);
+     
         
-        return response.data.data.user;// return the user object from the response
+        return { user: response.data.data.user, token: response.data.data.accessToken };
 
     } catch (error) {
-       return rejectWithValue(error.response.data.message);
+       return rejectWithValue(error.response.data.data.message);
         
     }
 
@@ -55,7 +59,7 @@ export const registerUser = createAsyncThunk("auth/registerUser", async (userDat
         localStorage.setItem("userToken", JSON.stringify(response.data.token));
         
 
-        return response.data.data.user;// return the user object from the response
+        return { user: response.data.data.user, token: response.data.data.accessToken };
 
     } catch (error) {
        return rejectWithValue(error.response.data.data.message);
@@ -71,6 +75,7 @@ const authSlice = createSlice({
     reducers : {
         logout : (state) => {
             state.user = null;
+            state.token = null; 
             state.guestId = `guest_${new Date().getTime()}`; 
             
             //Reset the guest ID on logout
@@ -94,12 +99,13 @@ const authSlice = createSlice({
             state.error = null;
         })
         .addCase(loginUser.fulfilled, (state, action) =>{
-            state.loading = false;
-            state.user = action.payload;
+            state.user = action.payload.user; // Access user from the returned object
+            state.token = action.payload.accessToken;
+            state.error = null;
         })
-        .addCase(loginUser.rejected, (state,) =>{
+        .addCase(loginUser.rejected, (state,action) =>{
             state.loading = false;
-        
+            state.error = action.payload;
         })
         .addCase(registerUser.pending, (state) =>{
             state.loading = true;
@@ -108,9 +114,11 @@ const authSlice = createSlice({
         .addCase(registerUser.fulfilled, (state, action) =>{
             state.loading = false;
             state.user = action.payload;
+            state.token = action.payload.accessToken;
         })
-        .addCase(registerUser.rejected, (state) =>{
+        .addCase(registerUser.rejected, (state,action) =>{
             state.loading = false;
+            state.error = action.payload;
             
         })
     }

@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
-import {Link} from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import {Link, useNavigate} from 'react-router-dom'
 
 
 
 
 import registerImg from '../assets/RegisterImg.jpg'
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../Redux/slices/authSlice';
 
 const Register = () => {
 
@@ -12,15 +14,40 @@ const Register = () => {
         const [email, setEmail] = useState("");
         const [password, setPassword] = useState("");
         const [gender, setGender] = useState("");
+        const [username, setUsername] = useState("");
         const [dob, setDob] = useState("");
         const [phone, setPhone] = useState("");
         const [profileImage, setProfileImage] = useState(null);
 
- 
-          
-const handleSubmit = (e) =>{
-    e.preventDefault();
+        const{user, loading } = useSelector((state) => state.auth);
+        const dispatch = useDispatch(); 
+        const navigate = useNavigate();
 
+
+
+
+        // useEffect to redirect user to home page if already logged in
+        useEffect(() => {
+            if (user && !loading) {
+                navigate("/");
+            }
+        }, [user, loading, navigate]);
+
+
+
+    const handleSubmit = (e) =>{
+    e.preventDefault();
+    // handle the registration logic, such as making an API call to register the user.
+    dispatch(registerUser({
+        fullname,
+        email,
+        password,
+        username,
+        gender,
+        dob,
+        phone_number: phone,
+        profilePicture: profileImage
+    }));
 }
 
 
@@ -55,7 +82,7 @@ return (
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className='w-full p-2 border rounded'
-                        placeholder='Enter your email address'
+                        placeholder='Enter your Email'
                         required
                     />
                 </div>
@@ -70,11 +97,26 @@ return (
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className='w-full p-2 border rounded'
-                        placeholder='Enter your password'
+                        placeholder='Enter your Password'
+                        required
+                    />
+                </div>
+                <div>
+                    <label className='block text-sm font-semibold mb-2'>Username</label>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className='w-full p-2 border rounded'
+                        placeholder='Enter your Username'
                         required
                     />
                 </div>
 
+                
+                </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+                
                 <div>
                     <label className='block text-sm font-semibold mb-2'>Gender</label>
                     <select
@@ -89,8 +131,8 @@ return (
                         <option value="other">Other</option>
                     </select>
                 </div>
-                </div>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
+
+                {/* dob */}
                 <div>
                     <label className='block text-sm font-semibold mb-2'>Date of Birth</label>
                     <input
@@ -102,7 +144,9 @@ return (
                     />
                 </div>
 
+                </div>
 
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
                 <div>
                     <label className='block text-sm font-semibold mb-2'>Phone</label>
                     <input
@@ -110,10 +154,9 @@ return (
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className='w-full p-2 border rounded'
-                        placeholder='Enter your phone number'
+                        placeholder='Enter your Phone number'
                         required
                     />
-                </div>
                 </div>
 
                 <div className='mb-6'>
@@ -124,6 +167,8 @@ return (
                         onChange={(e) => setProfileImage(e.target.files[0])}
                         className='w-full border rounded p-2'
                     />
+                </div>
+
                 </div>
 
                 <button type='submit' className='w-full bg-black text-white rounded-lg p-2 font-semibold hover:bg-gray-800 transition'>Sign Up</button>

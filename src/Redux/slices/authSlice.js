@@ -55,8 +55,8 @@ export const registerUser = createAsyncThunk("auth/registerUser", async (userDat
 
         const response = await axios.post(`https://trip-planner-docker.onrender.com/api/v1/user/register`, userData);
 
-        localStorage.setItem("userInfo", JSON.stringify(response.data.user))
-        localStorage.setItem("userToken", JSON.stringify(response.data.token));
+        localStorage.setItem("userInfo", JSON.stringify(response.data.data.user))
+        localStorage.setItem('userToken', response.data.data.accessToken);
         
 
         return { user: response.data.data.user, token: response.data.data.accessToken };
@@ -102,6 +102,7 @@ const authSlice = createSlice({
             state.user = action.payload.user; // Access user from the returned object
             state.token = action.payload.accessToken;
             state.error = null;
+            state.loading = false;
         })
         .addCase(loginUser.rejected, (state,action) =>{
             state.loading = false;

@@ -1,14 +1,24 @@
 import { MapPin } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux'; // Assuming you use Redux for logout
+import { useDispatch, useSelector } from 'react-redux'; // Assuming you use Redux for logout
 import { logout } from '../Redux/slices/authSlice';
 
-const Navbar = ({ user, token }) => {
+const Navbar = () => {
+  const {user} =useSelector((state) => state.auth); // Get user data from Redux store
+  const token = (localStorage.getItem('userToken')); // Get token from localStorage
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null); // Ref for the profile dropdown
   const dispatch = useDispatch(); // Initialize useDispatch
+
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logout()); // Dispatch the logout action
+    setProfileOpen(false); // Close profile dropdown after logout
+    setMenuOpen(false); // Close mobile menu if open
+  };
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -22,48 +32,44 @@ const Navbar = ({ user, token }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileRef]);
-
-  useEffect(() => {
-    // Check if user is logged in and has a token
-    if (token) {
-      // You can add any logic here that needs to run when the app loads
-      console.log("User is logged in:", user);
-    } else {
-      console.log("User is not logged in");
+  
+  
+  
+ 
+  
+    useEffect(() => {
+      // Check if user is logged in and has a token
+      if (token) {
+        // You can add any logic here that needs to run when the app loads
+        console.log("User is logged in:", user);
+      } else {
+        console.log("User is not logged in");
+      }
     }
-  }
-  , [user, token]); // Dependency array to run effect when user or token changes
-
-
-
-  const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
-    setProfileOpen(false); // Close profile dropdown after logout
-    setMenuOpen(false); // Close mobile menu if open
-  };
-
+    , [user, token]); // Dependency array to run effect when user or token changes
+  
   return (
     <nav className="bg-white shadow-md px-4 py-2 flex items-center justify-between relative z-50">
       {/* Logo and Site Title */}
       <Link to={"/"} className="flex items-center gap-2">
       <div className="flex items-center gap-2">
-        <MapPin className="text-blue-600" />
+        <MapPin className="text-black" />
         <span className="font-bold text-lg">Trip Planner</span>
       </div>
       </Link>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex gap-6 items-center">
-        <Link to="/" className="hover:text-blue-600 transition-colors duration-200">
+        <Link to="/" className="hover:text-gray-700 hover:underline transition-colors duration-200">
           Home
         </Link>
-        <Link to="/destinations" className="hover:text-blue-600 transition-colors duration-200">
+        <Link to="/destinations" className="hover:text-gray-700 hover:underline transition-colors duration-200">
           Destinations
         </Link>
-        <Link to="/about" className="hover:text-blue-600 transition-colors duration-200">
+        <Link to="/about" className="hover:text-gray-700 hover:underline transition-colors duration-200">
           About Us
         </Link>
-        <Link to="/contact" className="hover:text-blue-600 transition-colors duration-200">
+        <Link to="/contact" className="hover:text-gray-700 hover:underline transition-colors duration-200">
           Contact Us
         </Link>
 
@@ -98,13 +104,13 @@ const Navbar = ({ user, token }) => {
           <div className="flex gap-2">
             <Link
               to="/login"
-              className="px-4 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors duration-200"
+              className="px-4 py-1 border border-black-600 text-black rounded hover:bg-gray-700 hover:text-white transition-colors duration-200"
             >
               Login
             </Link>
             <Link
-              to="/signup"
-              className="px-4 py-1 border border-blue-600 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
+              to="/register"
+              className="px-4 py-1 border border-black rounded bg-black text-white hover:bg-gray-700 transition-colors duration-200"
             >
               Signup
             </Link>
@@ -140,28 +146,29 @@ const Navbar = ({ user, token }) => {
         <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col gap-4 px-4 py-4 md:hidden z-40 animate-slide-down">
           <Link
             to="/"
-            className="hover:text-blue-600 transition-colors duration-200"
+            className="hover:text-gray-700 hover:underline transition-colors duration-200"
             onClick={() => setMenuOpen(false)}
           >
             Home
           </Link>
           <Link
             to="/destinations"
-            className="hover:text-blue-600 transition-colors duration-200"
+            className="hover:text-gray-700 hover:underline transition-colors duration-200"
             onClick={() => setMenuOpen(false)}
           >
             Destinations
           </Link>
           <Link
             to="/about"
-            className="hover:text-blue-600 transition-colors duration-200"
+            className="hover:text-gray-700 hover:underline transition-colors duration-200"
             onClick={() => setMenuOpen(false)}
           >
             About Us
           </Link>
+      
           <Link
             to="/contact"
-            className="hover:text-blue-600 transition-colors duration-200"
+            className="hover:text-gray-700 hover:underline transition-colors duration-200"
             onClick={() => setMenuOpen(false)}
           >
             Contact Us
@@ -170,14 +177,14 @@ const Navbar = ({ user, token }) => {
             <div className="flex flex-col gap-2 border-t pt-4 mt-4 border-gray-200">
               <Link
                 to="/dashboard"
-                className="hover:text-blue-600 transition-colors duration-200"
+                className="hover:text-black transition-colors duration-200"
                 onClick={() => setMenuOpen(false)}
               >
                 Profile
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-left hover:text-blue-600 transition-colors duration-200"
+                className="text-left hover:text-black transition-colors duration-200"
               >
                 Logout
               </button>
@@ -186,14 +193,14 @@ const Navbar = ({ user, token }) => {
             <div className="flex flex-col gap-2 border-t pt-4 mt-4 border-gray-200">
               <Link
                 to="/login"
-                className="px-4 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition-colors duration-200 text-center"
+                className="px-4 py-1 border  text-black rounded hover:bg-gray-700 hover:text-white transition-colors duration-200 text-center"
                 onClick={() => setMenuOpen(false)}
               >
                 Login
               </Link>
               <Link
-                to="/signup"
-                className="px-4 py-1 border border-blue-600 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200 text-center"
+                to="/register"
+                className="px-4 py-1 border  rounded bg-black text-white hover:bg-gray-700 transition-colors duration-200 text-center"
                 onClick={() => setMenuOpen(false)}
               >
                 Signup

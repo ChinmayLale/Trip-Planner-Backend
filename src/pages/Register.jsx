@@ -37,17 +37,19 @@ const Register = () => {
 
     const handleSubmit = (e) =>{
     e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('fullname', fullname);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('username', username);
+    formData.append('gender', gender);
+    formData.append('dob', dob);
+    formData.append('phone_number', phone);
+    formData.append('profilePicture', profileImage);
+
     // handle the registration logic, such as making an API call to register the user.
-    dispatch(registerUser({
-        fullname,
-        email,
-        password,
-        username,
-        gender,
-        dob,
-        phone_number: phone,
-        profilePicture: profileImage
-    }));
+    dispatch(registerUser(formData));
 }
 
 

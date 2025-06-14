@@ -6,6 +6,7 @@ import ProfilePage from "./pages/ProfilePage"
 import DashBoard from "./pages/DashBoard"
 import Navbar from "./components/Navbar"
 import { useEffect } from "react"
+import { useSelector } from "react-redux"
 
 
 
@@ -14,15 +15,12 @@ import { useEffect } from "react"
 function App() {
 
 
-   const user = JSON.parse(localStorage.getItem('user')); // Assuming user data is stored in localStorage
-  const token = localStorage.getItem('userToken'); // Assuming token is stored in localStorage
-
   
 
   return (
    <div className="App">
       {/* Navbar */}
-          <Navbar user={user} token={token} />
+          <Navbar />
     <Routes>
   
       <Route path="/" element={<HomePage />} />
